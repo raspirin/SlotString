@@ -4,6 +4,11 @@
 
 一个 Unity 2021.3+ Package Manager 包，提供把字符串里的数字占位符解析为运行时值的小型工具。
 
+```csharp
+var line = new SlotString("${0}: ${1} pts", host);
+line.ToString();   // "Alice: 42 pts"
+```
+
 
 ## 安装
 
@@ -86,6 +91,13 @@ raw 在构造时被读取一次，之后不再持有——之后是否变化与�
 
 - `${0}`、`${1}`、`${42}` —— 任意非负整数索引。
 - 格式错误的 token（`${}`、`${abc}`、未闭合的 `${0`、溢出的索引）会原样保留为字面量。解析器从不抛异常。
+- **没有转义语法。** 每个格式合法的 `${N}` 都会被当成占位符解析；没有办法在模板里直接写出一个字面量的 `${0}`。如果输出里就是要包含 `${0}` 这种文本，把它放在 host 那一侧，从一个别的占位符索引取出来即可 —— `Format` 把 host 返回的字符串原样 append，不会二次解析：
+
+  ```csharp
+  // 想要输出："Use ${0} to insert your name"
+  var line = new SlotString("Use ${0} to insert your name", host);
+  // host.Access(0) 返回字面量字符串 "${0}"
+  ```
 
 ### 缓存与状态 token 失效
 

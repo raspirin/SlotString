@@ -4,6 +4,11 @@
 
 A Unity 2021.3+ Package Manager package that provides a small runtime utility for resolving numeric slot placeholders in strings.
 
+```csharp
+var line = new SlotString("${0}: ${1} pts", host);
+line.ToString();   // "Alice: 42 pts"
+```
+
 
 ## Installation
 
@@ -86,6 +91,13 @@ The raw is read once during construction and not retained — whether it later c
 
 - `${0}`, `${1}`, `${42}` — any non-negative integer index.
 - Malformed tokens (`${}`, `${abc}`, unclosed `${0`, overflowing index) are kept verbatim. The parser never throws.
+- **No escape syntax.** Every well-formed `${N}` is interpreted as a placeholder; there is no way to write a literal `${0}` in the template itself. If you need one in the output, expose it as a host value and reference it from a different placeholder index — `Format` appends host values verbatim and does not re-parse them:
+
+  ```csharp
+  // Want output: "Use ${0} to insert your name"
+  var line = new SlotString("Use ${0} to insert your name", host);
+  // host.Access(0) returns the literal string "${0}"
+  ```
 
 ### Caching and state-token invalidation
 
