@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Tests don't ship to Unity, so we can use the modern runtime that
+         the local SDK ships with. -->
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+
+    <RootNamespace>SlotStrings.Tests</RootNamespace>
+    <AssemblyName>SlotString.Tests</AssemblyName>
+
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+
+    <!-- Only compile the explicit Tests/ folder. Keeps the project tidy if
+         we ever drop loose scratch files here. -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Tests\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <!-- NUnit 3.x: aligns with Unity Test Framework's bundled NUnit 3.5,
+         so any test we write here can be lifted into a Unity Tests/
+         folder later with minimal change. -->
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Brings the runtime DLL in as a build-time reference and adds
+         SlotString as a concrete in-solution consumer (which silences
+         Rider's UnusedMember.Global family on the public API). -->
+    <ProjectReference Include="..\SlotString\SlotString.csproj" />
+  </ItemGroup>
+
+</Project>

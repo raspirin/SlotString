@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Match Unity 2021.3 default API Compatibility Level (.NET Standard 2.1) -->
+    <TargetFramework>netstandard2.1</TargetFramework>
+
+    <!-- Match Unity 2021.3 C# language support; bump only when the asmdef host does -->
+    <LangVersion>9.0</LangVersion>
+
+    <!-- Mirror SlotString.asmdef so the produced DLL is identity-equivalent
+         to what Unity emits in Library/ScriptAssemblies/ -->
+    <AssemblyName>SlotString</AssemblyName>
+    <RootNamespace>SlotStrings</RootNamespace>
+
+    <!-- Unity asmdef has no nullable annotations; keep parity -->
+    <Nullable>disable</Nullable>
+
+    <!-- Don't auto-include any *.cs sitting next to the csproj. We compile
+         only the canonical Runtime sources. -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Single source of truth: Runtime/*.cs that Unity also compiles via asmdef.
+         Path is relative from Build~/SlotString/. -->
+    <Compile Include="..\..\Runtime\**\*.cs" />
+  </ItemGroup>
+
+</Project>

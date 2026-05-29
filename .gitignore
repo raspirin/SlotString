@@ -1,0 +1,43 @@
+# ---- .NET / MSBuild build artefacts ----
+# The Build~/ directory hosts a standalone .NET solution (csproj + tests).
+# Source files (csproj, *.cs) are tracked; build outputs are not.
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+
+# ---- IDE / editor ----
+# Note: don't add `*~` here — Unity uses a trailing `~` on directory names
+# (Build~, Documentation~, Samples~) to mark them as Unity-invisible, and
+# `*~` would silently exclude those directories from git too.
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Unity package consumer-side artefacts ----
+# This repo IS a Unity package, not a Unity project, so the standard
+# Library/, Temp/, Logs/, UserSettings/ directories should never appear
+# at the root. They are listed here defensively in case the package is
+# ever opened directly as a project.
+[Ll]ibrary/
+[Tt]emp/
+[Ll]ogs/
+[Uu]serSettings/
+[Mm]emoryCaptures/
+*.csproj
+*.sln
+!Build~/**/*.csproj
+!Build~/**/*.sln
+
+# ---- Test results ----
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
