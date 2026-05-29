@@ -1,6 +1,6 @@
 {
   "name": "top.rasp505.slot-string",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "displayName": "Slot String",
   "description": "A small runtime utility for resolving numeric slot placeholders from a host-provided template.",
   "unity": "2021.3",

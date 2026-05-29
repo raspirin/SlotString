@@ -71,7 +71,7 @@ namespace SlotStrings.Tests
         }
 
         [Test]
-        public void Format_MultiDigitIndex_ParsesAsSingleIndex()
+        public void Format_MultiDigitSlot_ParsesAsSingleSlot()
         {
             var template = new SlotStringTemplate("v=${42}");
             var host = FakeHost.FromDictionary(new() { [42] = "answer" });
@@ -109,7 +109,7 @@ namespace SlotStrings.Tests
         }
 
         [Test]
-        public void Format_OverflowingIndex_KeptAsLiteral()
+        public void Format_OverflowingSlot_KeptAsLiteral()
         {
             // 19 nines overflows int.MaxValue and the parser falls back to literal.
             var raw = "x${9999999999999999999}y";
@@ -132,7 +132,7 @@ namespace SlotStrings.Tests
         [Test]
         public void Format_HostReturnsNull_Throws()
         {
-            // Host contract: Access must return non-null for any index referenced
+            // Host contract: Access must return non-null for any slot referenced
             // by the template. Returning null is a contract violation, not a
             // graceful "data missing" path. The library refuses to silently
             // substitute a marker string into the rendered output (which would
@@ -144,7 +144,7 @@ namespace SlotStrings.Tests
             Assert.That(
                 () => template.Format(host),
                 Throws.InvalidOperationException
-                    // Index must appear in the message so the offending
+                    // Slot must appear in the message so the offending
                     // placeholder is identifiable from logs / crash reports.
                     .With.Message.Contains("7"));
         }

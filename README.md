@@ -24,7 +24,7 @@ using SlotStrings;
 
 ### Quick start
 
-A `SlotString` interleaves fixed text with values pulled from a host. Placeholders use `${N}` syntax (non-negative integer index).
+A `SlotString` interleaves fixed text with values pulled from a host. Placeholders use `${N}` syntax (any non-negative integer slot number — slots can be sparse, non-contiguous, anything).
 
 ```csharp
 using SlotStrings;
@@ -48,12 +48,12 @@ public sealed class ScoreBoardHost : ISlotStringHost
         set { _score = value; _token++; }
     }
 
-    // Numeric indices map to whatever data you like.
-    public string Access(int index) => index switch
+    // Numeric slots map to whatever data you like.
+    public string Access(int slot) => slot switch
     {
         0 => _playerName,
         1 => _score.ToString(),
-        _ => throw new System.ArgumentOutOfRangeException(nameof(index)),
+        _ => throw new System.ArgumentOutOfRangeException(nameof(slot)),
     };
 
     // Returned value is opaque — see "Caching and state-token invalidation" below.
@@ -89,9 +89,9 @@ The raw is read once during construction and not retained — whether it later c
 
 ### Placeholder syntax
 
-- `${0}`, `${1}`, `${42}` — any non-negative integer index.
-- Malformed tokens (`${}`, `${abc}`, unclosed `${0`, overflowing index) are kept verbatim. The parser never throws.
-- **No escape syntax.** Every well-formed `${N}` is interpreted as a placeholder; there is no way to write a literal `${0}` in the template itself. If you need one in the output, expose it as a host value and reference it from a different placeholder index — `Format` appends host values verbatim and does not re-parse them:
+- `${0}`, `${1}`, `${42}` — any non-negative integer slot. Slots are just int identifiers; they need not be 0-based, contiguous, or sequential.
+- Malformed tokens (`${}`, `${abc}`, unclosed `${0`, overflowing slot number) are kept verbatim. The parser never throws.
+- **No escape syntax.** Every well-formed `${N}` is interpreted as a placeholder; there is no way to write a literal `${0}` in the template itself. If you need one in the output, expose it as a host value and reference it from a different slot — `Format` appends host values verbatim and does not re-parse them:
 
   ```csharp
   // Want output: "Use ${0} to insert your name"
@@ -132,10 +132,10 @@ Each `SlotString` has its own cache; only the template is shared.
 
 ### Host contract: `Access` must not return null
 
-If `Access(index)` returns `null`, rendering throws `InvalidOperationException` with the offending index. For graceful degradation, handle it inside `Access`:
+If `Access(slot)` returns `null`, rendering throws `InvalidOperationException` with the offending slot. For graceful degradation, handle it inside `Access`:
 
 ```csharp
-public string Access(int index) => index switch
+public string Access(int slot) => slot switch
 {
     0 => _playerName ?? string.Empty,
     _ => string.Empty,   // unmapped → empty instead of throwing

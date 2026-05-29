@@ -92,7 +92,7 @@ namespace SlotStrings.Tests
             // re-parsing it must produce the *same* segment sequence.
             //
             // We can't assert "rebuilt == raw" because the parser normalizes
-            // leading-zero indices ("${00}" → ${0}). The fixed-point version
+            // leading-zero slots ("${00}" → ${0}). The fixed-point version
             // captures the real semantic invariant: parsing is idempotent.
             var rng = new System.Random(seed);
 
@@ -136,7 +136,7 @@ namespace SlotStrings.Tests
 
         [TestCase(1)]
         [TestCase(42)]
-        public void Parser_PlaceholderIndicesAreNonNegative(int seed)
+        public void Parser_SlotsAreNonNegative(int seed)
         {
             var rng = new System.Random(seed);
 
@@ -149,7 +149,7 @@ namespace SlotStrings.Tests
                 {
                     if (segment.IsPlaceholder)
                     {
-                        Assert.That(segment.PlaceholderIndex, Is.GreaterThanOrEqualTo(0),
+                        Assert.That(segment.Slot, Is.GreaterThanOrEqualTo(0),
                             $"seed={seed}, iter={iteration}, raw={raw}");
                     }
                 }
@@ -220,10 +220,10 @@ namespace SlotStrings.Tests
 
         [TestCase(1)]
         [TestCase(42)]
-        public void Format_HostReturnsNullOnUsedIndex_Throws(int seed)
+        public void Format_HostReturnsNullOnUsedSlot_Throws(int seed)
         {
             // When the parsed template references at least one placeholder
-            // index and the host returns null for it, Format must throw the
+            // slot and the host returns null for it, Format must throw the
             // documented InvalidOperationException — not silently emit a
             // marker string into user-visible output.
             var rng = new System.Random(seed);
@@ -398,7 +398,7 @@ namespace SlotStrings.Tests
             {
                 if (segment.IsPlaceholder)
                 {
-                    builder.Append("${").Append(segment.PlaceholderIndex).Append('}');
+                    builder.Append("${").Append(segment.Slot).Append('}');
                 }
                 else
                 {
@@ -424,8 +424,8 @@ namespace SlotStrings.Tests
 
                 if (expected[i].IsPlaceholder)
                 {
-                    Assert.That(actual[i].PlaceholderIndex, Is.EqualTo(expected[i].PlaceholderIndex),
-                        $"{context}: segment[{i}] placeholder index mismatch");
+                    Assert.That(actual[i].Slot, Is.EqualTo(expected[i].Slot),
+                        $"{context}: segment[{i}] slot mismatch");
                 }
                 else
                 {

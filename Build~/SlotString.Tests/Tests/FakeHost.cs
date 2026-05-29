@@ -26,10 +26,10 @@ namespace SlotStrings.Tests
             return new FakeHost(i => values.TryGetValue(i, out var v) ? v : null, initialToken);
         }
 
-        public string Access(int index)
+        public string Access(int slot)
         {
             AccessCalls++;
-            return _accessor(index);
+            return _accessor(slot);
         }
 
         // Counter-style implementation; the production contract also accepts

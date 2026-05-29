@@ -47,14 +47,14 @@ namespace SlotStrings
                     continue;
                 }
 
-                if (!TryParseNonNegativeInt(raw, placeholderStart, placeholderEnd, out int placeholderIndex))
+                if (!TryParseNonNegativeInt(raw, placeholderStart, placeholderEnd, out int slot))
                 {
                     index++;
                     continue;
                 }
 
                 AddLiteralSegment(segments, raw, literalStart, index);
-                segments.Add(new Segment(placeholderIndex));
+                segments.Add(new Segment(slot));
 
                 index = placeholderEnd + 1;
                 literalStart = index;
@@ -86,9 +86,9 @@ namespace SlotStrings
 
                 if (segment.IsPlaceholder)
                 {
-                    int placeholderIndex = segment.PlaceholderIndex;
-                    builder.Append(host.Access(placeholderIndex) ?? throw new System.InvalidOperationException(
-                        $"ISlotStringHost.Access({placeholderIndex}) returned null; the host must provide a non-null value for every placeholder index referenced by the template."));
+                    int slot = segment.Slot;
+                    builder.Append(host.Access(slot) ?? throw new System.InvalidOperationException(
+                        $"ISlotStringHost.Access({slot}) returned null; the host must provide a non-null value for every slot referenced by the template."));
                 }
                 else
                 {
@@ -139,7 +139,7 @@ namespace SlotStrings
         public readonly struct Segment
         {
             private readonly string _literal;
-            private readonly int _placeholderIndex;
+            private readonly int _slot;
 
             /// <summary>Whether this segment is a literal or a placeholder.</summary>
             public SegmentKind Kind { get; }
@@ -151,20 +151,20 @@ namespace SlotStrings
             public Segment(string literal)
             {
                 _literal = literal ?? string.Empty;
-                _placeholderIndex = -1;
+                _slot = -1;
                 Kind = SegmentKind.Literal;
             }
 
-            /// <summary>Constructs a placeholder segment referring to <paramref name="placeholderIndex"/>.</summary>
-            public Segment(int placeholderIndex)
+            /// <summary>Constructs a placeholder segment referring to <paramref name="slot"/>.</summary>
+            public Segment(int slot)
             {
-                if (placeholderIndex < 0)
+                if (slot < 0)
                 {
-                    throw new System.ArgumentOutOfRangeException(nameof(placeholderIndex));
+                    throw new System.ArgumentOutOfRangeException(nameof(slot));
                 }
 
                 _literal = null;
-                _placeholderIndex = placeholderIndex;
+                _slot = slot;
                 Kind = SegmentKind.Placeholder;
             }
 
@@ -183,10 +183,10 @@ namespace SlotStrings
                 }
             }
 
-            /// <summary>The placeholder index; throws if <see cref="Kind"/> is not <see cref="SegmentKind.Placeholder"/>.</summary>
-            public int PlaceholderIndex => Kind != SegmentKind.Placeholder
+            /// <summary>The slot number; throws if <see cref="Kind"/> is not <see cref="SegmentKind.Placeholder"/>.</summary>
+            public int Slot => Kind != SegmentKind.Placeholder
                 ? throw new System.InvalidOperationException("Segment is not a placeholder.")
-                : _placeholderIndex;
+                : _slot;
 
             /// <summary>Discriminator for <see cref="Segment"/>.</summary>
             public enum SegmentKind

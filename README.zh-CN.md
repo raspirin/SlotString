@@ -24,7 +24,7 @@ using SlotStrings;
 
 ### 快速开始
 
-`SlotString` 把固定文本和从 host 取出的值交错拼接成一个字符串。占位符语法是 `${N}`，`N` 是非负整数索引。
+`SlotString` 把固定文本和从 host 取出的值交错拼接成一个字符串。占位符语法是 `${N}`，`N` 是非负整数 slot 编号 —— slot 可以是稀疏的、不连续的，任意非负 int 都行。
 
 ```csharp
 using SlotStrings;
@@ -48,12 +48,12 @@ public sealed class ScoreBoardHost : ISlotStringHost
         set { _score = value; _token++; }
     }
 
-    // 数字索引映射到你想暴露的任意数据。
-    public string Access(int index) => index switch
+    // 数字 slot 映射到你想暴露的任意数据。
+    public string Access(int slot) => slot switch
     {
         0 => _playerName,
         1 => _score.ToString(),
-        _ => throw new System.ArgumentOutOfRangeException(nameof(index)),
+        _ => throw new System.ArgumentOutOfRangeException(nameof(slot)),
     };
 
     // 返回值是不透明的——见下文「缓存与状态 token 失效」。
@@ -89,9 +89,9 @@ raw 在构造时被读取一次，之后不再持有——之后是否变化与�
 
 ### 占位符语法
 
-- `${0}`、`${1}`、`${42}` —— 任意非负整数索引。
-- 格式错误的 token（`${}`、`${abc}`、未闭合的 `${0`、溢出的索引）会原样保留为字面量。解析器从不抛异常。
-- **没有转义语法。** 每个格式合法的 `${N}` 都会被当成占位符解析；没有办法在模板里直接写出一个字面量的 `${0}`。如果输出里就是要包含 `${0}` 这种文本，把它放在 host 那一侧，从一个别的占位符索引取出来即可 —— `Format` 把 host 返回的字符串原样 append，不会二次解析：
+- `${0}`、`${1}`、`${42}` —— 任意非负整数都可以做 slot。slot 只是个 int 标识符，不要求从 0 开始、连续，或者按顺序使用。
+- 格式错误的 token（`${}`、`${abc}`、未闭合的 `${0`、溢出的 slot 编号）会原样保留为字面量。解析器从不抛异常。
+- **没有转义语法。** 每个格式合法的 `${N}` 都会被当成占位符解析；没有办法在模板里直接写出一个字面量的 `${0}`。如果输出里就是要包含 `${0}` 这种文本，把它放在 host 那一侧，从另一个 slot 取出来即可 —— `Format` 把 host 返回的字符串原样 append，不会二次解析：
 
   ```csharp
   // 想要输出："Use ${0} to insert your name"
@@ -132,12 +132,12 @@ foreach (var entryHost in combatLogHosts)
 
 ### Host 契约：`Access` 不能返回 null
 
-如果 `Access(index)` 返回 `null`，渲染会抛 `InvalidOperationException`，message 里带出问题索引。需要优雅降级时，在你自己的 `Access` 里处理：
+如果 `Access(slot)` 返回 `null`，渲染会抛 `InvalidOperationException`，message 里带出问题 slot。需要优雅降级时，在你自己的 `Access` 里处理：
 
 ```csharp
-public string Access(int index) => index switch
+public string Access(int slot) => slot switch
 {
     0 => _playerName ?? string.Empty,
-    _ => string.Empty,   // 未映射的索引 → 返回空串而不是抛
+    _ => string.Empty,   // 未映射的 slot → 返回空串而不是抛
 };
 ```
